@@ -1,0 +1,132 @@
+{
+  "name": "GMail automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -272
+      ],
+      "id": "ff17cb5a-f8e7-4333-be90-552832f5d3c1",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15E8hHNhz7WfG-k1vm1hLMoCzy_mCk2y7o7nlJbluVGk",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        256,
+        -304
+      ],
+      "id": "d60d3c1c-1b47-4d78-8136-b46f13667ba4",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "eStEoS9JFRADMrQN",
+          "name": "google sheets renny n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "rennykenny96@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        736,
+        -256
+      ],
+      "id": "9dd5f709-96c9-4992-bcc3-45c7dee2800d",
+      "name": "Send a message",
+      "webhookId": "aebfb7de-a132-4315-8e12-1c2b09be2cff",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "T4ih0X0gD6pA1qLA",
+          "name": "rennykenny gmail oauth2 n8n"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(item => item.json);\n\n// Stop without creating an email if there are no rows.\nif (rows.length === 0) {\n  return [];\n}\n\nconst details = rows.map((row, index) => {\n  return [\n    `${index + 1}. ${row.Name || 'N/A'}`,\n    `   Course: ${row.Course || 'N/A'}`,\n    `   Status: ${row.Status || 'N/A'}`\n  ].join('\\n');\n});\n\nconst subject = `Data Summary from Google Sheet - ${rows.length} Records`;\n\nconst body = [\n  'Hi,',\n  '',\n  'Here is the latest data from your Google Sheet:',\n  '',\n  ...details,\n  '',\n  'Regards,',\n  'Your Automation Bot'\n].join('\\n');\n\nreturn [{ json: { subject, body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        -288
+      ],
+      "id": "6762ca9d-de8c-497d-b7e5-22323b2c889a",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "dfe28274-a003-44fc-b426-e1be1a2c3a87",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "671c34f8a4dbf12909121072a7135fc38cb80830aeec96cf8827d3cbdb6dc196"
+  },
+  "nodeGroups": [],
+  "id": "PtNjqvmk0oH2OYgh",
+  "tags": []
+}
